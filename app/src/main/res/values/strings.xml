@@ -1,6 +1,4 @@
 <resources>
-  <string name="app_name">EndlessPong</string>
-
-  <string name="dummy_button">Dummy Button</string>
-  <string name="dummy_content">DUMMY\nCONTENT</string>
+  <string name="app_name">Endless Pong</string>
+  <string name="titleText">Endless\nPong</string>
 </resources>
