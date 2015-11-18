@@ -56,19 +56,24 @@ public class OnePlayer extends AppCompatActivity {
 
   public boolean onTouchEvent(MotionEvent event) {
 
+    // This method checks to see if the user touches or releases, and keeps a record of # of
+    // presses and where there was a press.
+
     if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN || event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
       touching += 1;
+      //code to remember touch
     } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_1_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_POINTER_2_UP || event.getAction() == MotionEvent.ACTION_POINTER_3_UP) {
       touching -= 1;
-      // Toast.makeText(this, Integer.toString(event.getAction()), Toast.LENGTH_LONG).show();
+      //code to forget touch
     }
 
 
     Log.d(TAG, touching + " " + touching + " " + touching);
-    float x = event.getX();
+    /*float x = event.getX();
     float y = event.getY();
     handleTouch(x, y);
     return false;
+    */
   }
 
   public void handleTouch(float x, float y) {
