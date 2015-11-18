@@ -1,9 +1,13 @@
 package com.example.craig.endlesspong.game;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.craig.endlesspong.R;
 
@@ -13,14 +17,18 @@ import com.example.craig.endlesspong.R;
  */
 public class OnePlayer extends AppCompatActivity {
 
-  public static final byte ONE = 0;
-  public static final byte TWO = 1;
-  public static final byte MSPERUPDATE = 16;
+  public static final byte ONE = 0, X = 0;
+  public static final byte TWO = 1, Y = 1;
+  public static final byte MSPERUPDATE = 20;
+  public static final byte PADDLEJUMP = 10;
+  public static final String TAG = Activity.class.getSimpleName();
   GameType mGameType;
   float dpHeight;
   float dpWidth;
   boolean eventHappened;
-  private Direction[] event = new Direction[1];
+  int paddleLocation[] = new int[2];
+  byte touching = 0;
+  private Direction[] event = new Direction[2];
 
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -29,11 +37,34 @@ public class OnePlayer extends AppCompatActivity {
 
     DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
 
-    dpHeight = displayMetrics.heightPixels / displayMetrics.density;
-    dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+    dpHeight = displayMetrics.heightPixels;
+    dpWidth = displayMetrics.widthPixels;
+
+    mGameType = GameType.ONEPLAYER;
+    paddleLocation[ONE] = 0;
+    paddleLocation[TWO] = 0;
+
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show();
+    //gameLoop();
   }
 
   public boolean onTouchEvent(MotionEvent event) {
+
+    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_POINTER_2_DOWN || event.getAction() == MotionEvent.ACTION_POINTER_3_DOWN) {
+      touching += 1;
+    } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_POINTER_1_UP || event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_POINTER_2_UP || event.getAction() == MotionEvent.ACTION_POINTER_3_UP) {
+      touching -= 1;
+      // Toast.makeText(this, Integer.toString(event.getAction()), Toast.LENGTH_LONG).show();
+    }
+
+
+    Log.d(TAG, touching + " " + touching + " " + touching);
     float x = event.getX();
     float y = event.getY();
     handleTouch(x, y);
@@ -44,6 +75,8 @@ public class OnePlayer extends AppCompatActivity {
 
     // This method finds out which half/quarter of the screen was touched and registers a
     // detection for the game loop to act upon.
+
+    //Toast.makeText(this, "Touched", Toast.LENGTH_LONG).show();
 
     eventHappened = true;
 
@@ -80,11 +113,11 @@ public class OnePlayer extends AppCompatActivity {
 
     boolean gameIsRunning = true;
     double lag = 0.0;
-    double previous = getCurrentTime();
+    double previous = System.currentTimeMillis();
 
     while (gameIsRunning) {
 
-      double current = getCurrentTime();
+      double current = System.currentTimeMillis();
       double elapsed = current - previous;
       previous = current;
       lag += elapsed;
@@ -98,8 +131,9 @@ public class OnePlayer extends AppCompatActivity {
         pushPositions();
         lag -= MSPERUPDATE;
         eventHappened = false;
-        event[ONE] = null;
-        event[TWO] = null;
+        paddleLocation[0] = 0;
+        paddleLocation[TWO] = 0;
+        event = null;
 
       }
     }
@@ -121,12 +155,47 @@ public class OnePlayer extends AppCompatActivity {
 
   private void findNewPosition(byte player, Direction direction) {
 
-    int currentPosition =
+    ImageView paddle = null;
+    int location[] = new int[2];
+
+    if (player == ONE) {
+      paddle = (ImageView) findViewById(R.id.p1Paddle);
+    } else if (player == TWO) {
+      paddle = (ImageView) findViewById(R.id.p2Paddle);
+    }
+
+    paddle.getLocationOnScreen(location);
+    paddleLocation[player] = location[X];
+
+    switch (direction) {
+      case LEFT:
+        paddleLocation[player] = -PADDLEJUMP;
+        break;
+      case RIGHT:
+        paddleLocation[player] = PADDLEJUMP;
+        break;
+      default:
+        break;
+    }
+  }
+
+  private void pushPositions() {
+
+    ImageView paddle[] = new ImageView[2];
+    //RelativeLayout layout = (RelativeLayout) findViewById(R.id.gameRelativeLayout);
+
+    paddle[ONE] = (ImageView) findViewById(R.id.p1Paddle);
+    paddle[TWO] = (ImageView) findViewById(R.id.p2Paddle);
+
+    paddle[ONE].setTranslationX(paddleLocation[ONE]);
+    paddle[TWO].setTranslationX(paddleLocation[TWO]);
+
   }
 
   public enum GameType {ONEPLAYER, TWOPLAYER}
 
   public enum Direction {LEFT, RIGHT}
+
     /*
   double previous = getCurrentTime();
   double lag = 0.0;
@@ -148,4 +217,5 @@ public class OnePlayer extends AppCompatActivity {
     render();
   }
     */
-}}
+
+}
